@@ -28,14 +28,16 @@ class TypeInferenceChecker
   end
 
   def add_dependency_based_on_internal_calls
-    @method_definitions.each do |class_name, method_definitions|
-      method_definitions.each do |method_definition|
-        method_definition.method_calls.each do |method_call|
-          receiver_class = method_call.class_name
-          method_name = method_call.method_name
-          formal_params = extract_formal_parameter(method_call.params)
-          dependencies = extract_param_classes(method_definition.args, formal_params)
-          add_new_dependencies(receiver_class, dependencies, method_name)
+    3.times do
+      @method_definitions.each do |class_name, method_definitions|
+        method_definitions.each do |method_definition|
+          method_definition.method_calls.each do |method_call|
+            receiver_class = method_call.class_name
+            method_name = method_call.method_name
+            formal_params = extract_formal_parameter(method_call.params)
+            dependencies = extract_param_classes(method_definition.args, formal_params)
+            add_new_dependencies(receiver_class, dependencies, method_name)
+          end
         end
       end
     end
