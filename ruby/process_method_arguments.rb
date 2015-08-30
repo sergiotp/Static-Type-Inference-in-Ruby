@@ -74,6 +74,11 @@ class ProcessMethodArguments < SexpInterpreter
     process(value)
   end
 
+  def process_if(exp)
+    _, *args = exp
+    args.map! {|sub_tree| process(sub_tree) if sub_tree.class == Sexp }
+  end
+
   def process_kwarg(exp)
     _, *args = exp
     args.map! { |subtree| process(subtree) if subtree.class == Sexp}
@@ -87,6 +92,28 @@ class ProcessMethodArguments < SexpInterpreter
   def process_ivar(exp)
     _, var_name, *args = exp
     args.map! {|sub_tree| process(sub_tree)}
+  end
+
+  def process_iter(exp)
+    _, first_part, second_part, *body = exp
+    process(first_part)
+    body.map! {|sub_tree| process(sub_tree)}
+  end
+
+  def process_cvasgn(exp)
+    _, class_var_name, *value = exp
+    value.map! {|sub_tree| process(sub_tree)}
+  end
+
+  def process_masgn(exp)
+    _, *args = exp
+    args.map! {|sub_tree| process(sub_tree) if sub_tree.class == Sexp}
+  end
+
+  def process_or(exp)
+    _, left_side, right_side = exp
+    process(left_side)
+    process(right_side)
   end
 
   def process_lvar(exp)

@@ -329,6 +329,9 @@ class ProcessMethodBody < SexpInterpreter
     args.map! {|sub_tree| process(sub_tree)}
   end
 
+  def process_redo(exp)
+  end
+
   def process_to_ary(exp)
     _, *args = exp
     args.map! {|sub_tree| process(sub_tree)}

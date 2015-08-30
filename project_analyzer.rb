@@ -63,6 +63,12 @@ projects << vagrant
 bootstrap_sass = { name: 'bootstrap_sass', files: "/Users/sergiomiranda/Sources/bootstrap-sass/lib/**/*.rb" }
 projects << bootstrap_sass
 
+octopress = { name: 'octopress', files: "/Users/sergiomiranda/Sources/octopress/plugins/**/*.rb" }
+projects << octopress
+
+ruby = { name: 'ruby', files: "/Users/sergiomiranda/Sources/ruby/lib/**/*.rb" }
+projects << ruby
+
 capistrano = { name: 'capistrano', files: "/Users/sergiomiranda/Sources/capistrano/lib/**/*.rb"}
 projects << capistrano
 
@@ -74,6 +80,13 @@ projects << paperclip
 
 resque = { name: 'resque', files: "/Users/sergiomiranda/Sources/resque/lib/**/*.rb" }
 projects << resque
+
+spree = { name: 'spree', files: [
+    "/Users/sergiomiranda/Sources/spree/api/**/*.rb",
+    "/Users/sergiomiranda/Sources/spree/backend/**/*.rb",
+    "/Users/sergiomiranda/Sources/spree/core/**/*.rb"
+]}
+projects << spree
 
 grape = { name: 'grape', files: "/Users/sergiomiranda/Sources/grape/lib/**/*.rb" }
 projects << grape

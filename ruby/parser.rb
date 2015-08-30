@@ -238,6 +238,11 @@ class Parser < SexpInterpreter
     args.map! {|sub_tree| process(sub_tree)}
   end
 
+  def process_dregx_once(exp)
+    _, start, *args = exp
+    args.map! {|sub_tree| process(sub_tree) if sub_tree.class == Sexp}
+  end
+
   def process_evstr(exp)
     _, *args = exp
     args.map! {|sub_tree| process(sub_tree)}
@@ -284,6 +289,11 @@ class Parser < SexpInterpreter
     args.map! {|sub_tree| process(sub_tree)}
   end
 
+  def process_svalue(exp)
+    _, *args = exp
+    args.map! {|sub_tree| process(sub_tree)}
+  end
+
   def process_not(exp)
     _, *args = exp
     args.map! {|sub_tree| process(sub_tree)}
@@ -322,6 +332,23 @@ class Parser < SexpInterpreter
     process(body)
   end
 
+  def process_until(exp)
+    _, condition, body = exp
+    process(condition)
+    process(body)
+  end
+
+  def process_for(exp)
+    _, x, y, body = exp
+    process(x)
+    process(y)
+    process(body)
+  end
+
+  def process_valias(exp)
+
+  end
+
   def process_xstr(exp)
   end
 
@@ -346,6 +373,9 @@ class Parser < SexpInterpreter
   def process_defined(exp)
     _, *args = exp
     args.map! {|sub_tree| process(sub_tree)}
+  end
+
+  def process_postexe(exp)
   end
 
   def process_iasgn(exp)

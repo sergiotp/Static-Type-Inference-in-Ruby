@@ -17,6 +17,11 @@ class ProcessMethodParams < SexpInterpreter
     #estudar esse caso
   end
 
+  def process_dregx_once(exp)
+    _, start, *args = exp
+    args.map! {|sub_tree| process(sub_tree)}
+  end
+
   def process_block(exp)
     _, *args = exp
     args.map! { |subtree| process(subtree) }
@@ -137,6 +142,21 @@ class ProcessMethodParams < SexpInterpreter
     elements.map! {|sub_tree| process(sub_tree)}
   end
 
+  def process_match2(exp)
+    _, rec, *args = exp
+    args.map! {|sub_tree| process(sub_tree)}
+  end
+
+  def process_defined(exp)
+    _, *args = exp
+    args.map! {|sub_tree| process(sub_tree)}
+  end
+
+  def process_dxstr(exp)
+    _, str, *args = exp
+    args.map! {|sub_tree| process(sub_tree)}
+  end
+
   def process_dregx(exp)
     _, str, *args = exp
     args.map! {|sub_tree| process(sub_tree) if sub_tree.class == Sexp }
@@ -216,6 +236,9 @@ class ProcessMethodParams < SexpInterpreter
 
   def process_cvar(exp)
     # class variable
+  end
+
+  def process_super(exp)
   end
 
   def process_nil(exp)
