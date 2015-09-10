@@ -19,7 +19,7 @@ class ProcessMethodParams < SexpInterpreter
 
   def process_dregx_once(exp)
     _, start, *args = exp
-    args.map! {|sub_tree| process(sub_tree)}
+    args.map! {|sub_tree| process(sub_tree) if sub_tree.class == Sexp}
   end
 
   def process_block(exp)
