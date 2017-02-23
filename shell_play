@@ -1,6 +1,0 @@
-grep-ruby() { find app lib -name '*.rb' | xargs grep $* }
-grep-ruby -h '^[[:space:]]*\(class\|module\)\b' | sed 's/^[[:space:]]*//' | cut -d ' ' -f 2 |
-while read class; do
-  echo "`grep-ruby -l "\b$class\b" | wc -l` $class"
-done |
-sort -n
