@@ -2,8 +2,8 @@
 This repository contains a static-based type inference algorithm proposed for the Ruby language. The
 content of this repository is organized as follows:
 - **dataset**: the projects used to perform type inference.
-- **recall_data**: spreadsheets that present the results of the recalls.
-- **statistical_data**: R scripts used to compute statistical data.
+- **recall_data**: spreadsheet that present the results of the recalls.
+- **statistical_data**: R script used to compute statistical data.
 - **type_inference**: the static-based type inference algorithm
 
 ## Dataset
