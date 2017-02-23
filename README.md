@@ -2,12 +2,12 @@
 This repository contains a static-based type inference algorithm proposed for the Ruby language. The
 content of this repository is organized as follows:
 - **dataset**: the projects used to perform type inference.
-- **recall_data**: spreadsheet that present the results of the recalls.
+- **recall_data**: spreadsheet that contains the results of the recalls.
 - **statistical_data**: R script used to compute statistical data.
 - **type_inference**: the static-based type inference algorithm
 
 ## Dataset
-The static-based type inference algorithm was evaluated in the following nine open-source systems developed in Ruby:
+The static-based type inference algorithm was evaluated in the following nine open-source Ruby systems:
 - [Capistrano](https://github.com/sergiotp/Static-Type-Inference-in-Ruby/blob/master/dataset/capistrano-8a33c00f975905bfa25364a264d5f147ae1626bd.zip)
 - [CarrierWave](https://github.com/sergiotp/Static-Type-Inference-in-Ruby/blob/master/dataset/carrierwave-6c5941fd06d10aa545364a1be8fd26e314fff36b.zip)
 - [Devise](https://github.com/sergiotp/Static-Type-Inference-in-Ruby/blob/master/dataset/devise-4c3838bb759ec741558ecf86bd6cf01465043e4c.zip)
