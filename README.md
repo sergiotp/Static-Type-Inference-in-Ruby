@@ -4,7 +4,7 @@ content of this repository is organized as follows:
 - **dataset**: the projects used to perform type inference.
 - **recall_data**: spreadsheets that present the results of the recalls.
 - **statistical_data**: R scripts used to compute statistical data.
-
+- **type_inference**: the static-based type inference algorithm
 
 ## Dataset
 The static-based type inference algorithm was evaluated in the following nine open-source systems developed in Ruby:
