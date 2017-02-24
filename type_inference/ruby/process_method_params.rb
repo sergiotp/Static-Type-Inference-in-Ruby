@@ -108,6 +108,7 @@ module Archruby
 
           def process_hash(exp)
             _, key, value = exp
+            add_to_params("Hash")
             process(key)
             process(value)
           end
@@ -150,6 +151,8 @@ module Archruby
 
           def process_array(exp)
             _, *elements = exp
+            @current_dependency_class_name = "Array"
+            add_to_params("Array")
             elements.map! {|sub_tree| process(sub_tree)}
           end
 

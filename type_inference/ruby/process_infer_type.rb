@@ -17,7 +17,7 @@ module Archruby
           def self.infer_return_method(method, clazz, all_classes)
             while(method.return_exps.size > 0)
               exp = method.return_exps.pop
-              return_types = Ruby::ProcessInferType.new(exp, method.var_types, method.var_to_analyse, clazz, all_classes).parse
+              return_types = Ruby::ProcessInferType.new(exp, method.var_types, method.var_to_analyse, method.static_var_to_analyse, clazz, all_classes).parse
               method.return_types.merge(return_types)
             end
           end
@@ -26,7 +26,7 @@ module Archruby
             method.static_var_to_analyse.each do |var_name, exps|
               while(exps.size > 0)
                 exp = exps.pop
-                types = Ruby::ProcessInferType.new(exp, method.var_types, method.var_to_analyse, clazz, all_classes).parse
+                types = Ruby::ProcessInferType.new(exp, method.var_types, method.var_to_analyse, method.static_var_to_analyse, clazz, all_classes).parse
                 if(method.is_self)
                   clazz.static_var_types[var_name] ||= Set.new
                   clazz.static_var_types[var_name].merge(types)
@@ -39,7 +39,7 @@ module Archruby
             end
             
             method.var_to_analyse.each do |var_name, exp|
-              return_types = Ruby::ProcessInferType.new(exp, method.var_types, method.var_to_analyse, clazz, all_classes).parse
+              return_types = Ruby::ProcessInferType.new(exp, method.var_types, method.var_to_analyse, method.static_var_to_analyse, clazz, all_classes).parse
               method.var_types[var_name] ||= Set.new
               method.var_types[var_name].merge(return_types)
               method.var_to_analyse.delete(var_name)  
@@ -49,41 +49,54 @@ module Archruby
           def self.infer_proc_calls(proc, params, method, all_classes, var_assigned)
             proc_called = proc.create_clone_to_process_call(params)
             while(proc_called.explicit_return_exps.size > 0)
-              exp = proc.explicit_return_exps.pop
-              types = Ruby::ProcessInferType.new(exp, proc.var_types, proc.var_to_analyse, clazz, all_classes).parse
+              exp = proc_called.explicit_return_exps.pop
+              types = Ruby::ProcessInferType.new(exp, proc_called.var_types, proc_called.var_to_analyse, proc_called.static_var_to_analyse, proc_called.clazz, all_classes).parse
               method.var_types[var_assigned] ||= Set.new
               method.var_types[var_assigned].merge(types)
             end
             
             proc_called.static_var_to_analyse.each do |var_name, exps|
-              puts "analisando a variavel #{var_name}"
               while(exps.size > 0)
                 exp = exps.pop
-                puts "exp: #{exp}"
-                types = Ruby::ProcessInferType.new(exp, proc.var_types, proc.var_to_analyse, proc_called.clazz, all_classes).parse
-                puts "descoberto: #{types.to_a.to_s}"
+                types = Ruby::ProcessInferType.new(exp, proc_called.var_types, proc_called.var_to_analyse, proc_called.static_var_to_analyse, proc_called.clazz, all_classes).parse
                 proc_called.clazz.var_types[var_name] ||= Set.new  
                 proc_called.clazz.var_types[var_name].merge(types)
               end
             end
             
+            proc_called.var_to_analyse.each do |var_name, exps|
+              while(exps.size > 0)
+                exp = exps.pop
+                types = Ruby::ProcessInferType.new(exp, proc_called.var_types, proc_called.var_to_analyse, proc_called.static_var_to_analyse,proc_called.clazz, all_classes).parse
+                proc_called.var_types[var_name] ||= Set.new  
+                proc_called.var_types[var_name].merge(types)
+              end
+            end
             
           end
           
-          def initialize(exp, var_types, var_to_analyse, class_definition, all_classes)
+          def initialize(exp, var_types, var_to_analyse, static_var_to_analyse, class_definition, all_classes)
             super()
+            self.strict = false
+            self.default_method = "process_nothing"
             @var_types = var_types
             @var_to_analyse = var_to_analyse
+            @static_var_to_analyse = static_var_to_analyse
             @class_definition = class_definition
             @all_classes = all_classes
-            @ast = exp            
+            @ast = exp
+            @types = Set.new            
           end
           
           def parse
             process(@ast)
             @types
           end
-
+          
+          def process_nothing(exp)
+            
+          end
+          
           def update_types(types_set, method_called)
             @types = Set.new
             types_set.each do |class_name|
@@ -103,23 +116,23 @@ module Archruby
             if(@class_definition.var_types.has_key?(exp[1]))
               @types = @class_definition.var_types[exp[1]]
             end
-            if(@class_definition.var_to_analyse.has_key?(exp[1]))
-              while(@class_definition.var_to_analyse[exp[1]].size > 0)
-                exp_to_analyse = @class_definition.var_to_analyse[exp[1]].pop
-                types = Ruby::ProcessInferType.new(@var_to_analyse[exp[1]], @var_types, @var_to_analyse, @class_definition, @all_classes).parse
+            if(@static_var_to_analyse.has_key?(exp[1]))
+              while(@static_var_to_analyse[exp[1]].size > 0)
+                exp_to_analyse = @static_var_to_analyse[exp[1]].pop
+                types = Ruby::ProcessInferType.new(exp, @var_types, @var_to_analyse, @static_var_to_analyse, @class_definition, @all_classes).parse
                 @class_definition.var_types[exp[1]] ||= Set.new
                 @class_definition.var_types[exp[1]].merge(types)
                 @types.merge(types)
               end
-              @class_definition.var_to_analyse.delete(exp[1])
             end
           end
           
           def process_lvar(exp)
+            @types = Set.new
             if(@var_types.has_key?(exp[1]))
               @types = @var_types[exp[1]]
             elsif(@var_to_analyse.has_key?(exp[1]))
-              @types = Ruby::ProcessInferType.new(@var_to_analyse[exp[1]],@var_types, @var_to_analyse, @class_definition, @all_classes).parse
+              @types = Ruby::ProcessInferType.new(@var_to_analyse[exp[1]],@var_types, @var_to_analyse, @static_var_to_analyse, @class_definition, @all_classes).parse
               @var_to_analyse.delete(exp[1])
               @var_types[exp[1]] ||= Set.new
               @var_types[exp[1]].merge(@types)

@@ -18,7 +18,7 @@ require_relative 'ruby/process_include.rb'
 require_relative 'dependency_organizer.rb'
 require_relative 'type_inference_checker.rb'
  
-file_content = File.open("/home/elder/Documents/Aptana Studio 3 Workspace/archruby/lib/archruby/ruby/type_inference/target.rb", "rb").read
+file_content = File.open("/home/elder/Documents/Aptana Studio 3 Workspace/Static-Type-Inference-in-Ruby/type_inference/target.rb", "rb").read
 puts "AST: #{RubyParser.new.parse(file_content).to_s}"
 
 puts "#{"="*35} Comments #{"="*35}"

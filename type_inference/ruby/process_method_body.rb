@@ -202,6 +202,7 @@ module Archruby
               end
             end
           end
+          
           def process_iter(exp)
             _, first_part, second_part, *body = exp
             process(first_part)
@@ -507,6 +508,10 @@ module Archruby
           end
 
           def process_next(exp)
+            _, value = exp
+            if(@is_proc)
+              ProcStorage.instance.last_added_proc.explicit_return_exps << value
+            end
           end
 
           def process_str(exp)
