@@ -25,22 +25,23 @@ module Archruby
 
           def get_last_stm(exp)
             #caso especial
-            if(exp[0] == :case)
-              return exp
-            end
-            last_stm = exp
-            if(exp.respond_to?:each_sexp)
-              exp.each_sexp do |stm|
-                last_stm = stm
-              end
-            else
-              exp.each do |stm|
-                if(stm.class == Sexp)
+            if(exp.class == Array || exp[0] == :if || exp[0] == :block)
+              last_stm = exp
+              if(exp.respond_to?:each_sexp)
+                exp.each_sexp do |stm|
                   last_stm = stm
                 end
+              else
+                exp.each do |stm|
+                  if(stm.class == Sexp)
+                    last_stm = stm
+                  end
+                end
               end
+              return last_stm
+            else
+              return exp
             end
-            return last_stm
           end
           
           def check_implicit_return_if(exp)
@@ -86,6 +87,7 @@ module Archruby
           def parse
             @ast.map {|sub_tree| process(sub_tree)}
             @return_exp.concat(check_implicit_return(get_last_stm(@ast)))
+            puts @return_exp.to_s
             return @method_calls, @local_scope.var_types, @local_scope.var_to_analyse, @local_scope.static_var_to_analyse, @return_exp, @procs_declared
           end
 
