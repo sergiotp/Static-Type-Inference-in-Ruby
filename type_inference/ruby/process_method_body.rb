@@ -20,13 +20,72 @@ module Archruby
             @is_self = is_self
             @is_proc = false # controle para verificar se está processando um bloco
             @current_variable = nil            
-            
             @procs_declared = []
           end
 
+          def get_last_stm(exp)
+            #caso especial
+            if(exp[0] == :case)
+              return exp
+            end
+            last_stm = exp
+            if(exp.respond_to?:each_sexp)
+              exp.each_sexp do |stm|
+                last_stm = stm
+              end
+            else
+              exp.each do |stm|
+                if(stm.class == Sexp)
+                  last_stm = stm
+                end
+              end
+            end
+            return last_stm
+          end
+          
+          def check_implicit_return_if(exp)
+            _, condition, true_body, else_body = exp
+            implicit_returns = []
+            if(!true_body.nil?)
+              last_stm = get_last_stm(true_body)
+              implicit_returns.concat(check_implicit_return(last_stm))
+            end
+            if(!else_body.nil?)
+              last_stm = get_last_stm(else_body)
+              implicit_returns.concat(check_implicit_return(last_stm))
+            end
+            return implicit_returns
+          end
+          
+          def check_implicit_return_case(exp)
+            _, _, *whens = exp  
+            implicit_returns = []
+            whens.each do |when_exp|
+              if(!when_exp.nil?)
+                last_stm = get_last_stm(when_exp)
+                implicit_returns.concat(check_implicit_return(last_stm))
+              end
+            end
+            return implicit_returns
+          end
+          
+          def check_implicit_return(exp)
+            if(!exp.nil?)
+              if(exp[0] == :if)
+                return check_implicit_return_if(exp)
+              elsif(exp[0] == :case)
+                return check_implicit_return_case(exp)
+              else
+                return [exp]
+              end
+            else
+              return []
+            end
+          end
+
           def parse
-            @ast.map! {|sub_tree| process(sub_tree)}
-            #também retorna os tipos das variáveis do método
+            @ast.map {|sub_tree| process(sub_tree)}
+            @return_exp.concat(check_implicit_return(get_last_stm(@ast)))
             return @method_calls, @local_scope.var_types, @local_scope.var_to_analyse, @local_scope.static_var_to_analyse, @return_exp, @procs_declared
           end
 
@@ -80,6 +139,7 @@ module Archruby
           def process_lasgn(exp)
             _, variable_name, *args = exp
             @current_variable = variable_name
+            @current_dependency_class_name = nil
             args.map { |subtree| process(subtree) }
             #puts "#{@local_scope.var_type("self").first}, #{@method_name}, #{variable_name} | #{@current_dependency_class_name}"
             if @current_dependency_class_name
@@ -204,7 +264,7 @@ module Archruby
           end
           
           def process_iter(exp)
-            _, first_part, second_part, *body = exp
+            _, first_part, second_part, body = exp
             process(first_part)
             if(@current_dependency_class_name == "Proc")
               @current_dependency_class_name = nil
@@ -215,11 +275,14 @@ module Archruby
               if(second_part != 0)
                 process(second_part)
               end
-              body.map! {|sub_tree| process(sub_tree)}
+              #body.map {|sub_tree| process(sub_tree)}
+              process(body)
               @current_dependency_class_name = "Proc##{ProcStorage.instance.last_added_proc.id}"
+              ProcStorage.instance.last_added_proc.explicit_return_exps.concat(check_implicit_return(get_last_stm(body)))
               @is_proc = false
             else
-              body.map! {|sub_tree| process(sub_tree)}
+              #body.map! {|sub_tree| process(sub_tree)}
+              process(body)
             end
           end
 
@@ -528,7 +591,7 @@ module Archruby
           end
 
           def process_lit(exp)
-            @current_dependency_class_name = "Integer"
+            @current_dependency_class_name = "#{exp[1].class}"
           end
 
           def process_lvar(exp)

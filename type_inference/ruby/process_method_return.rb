@@ -85,8 +85,11 @@ module Archruby
 
           def process_lit(exp)
             @types = Set.new
+            puts "test"
+            puts "#{exp[1]} e #{exp[1].class}"
             @types.add("Integer")
           end
+          
           def process_str(exp)
             @types = Set.new
             @types.add("String")

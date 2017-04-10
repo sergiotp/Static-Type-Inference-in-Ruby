@@ -40,8 +40,9 @@ new_methods = verify_type.class_definitions
 
 verify_type.add_dependency_based_on_calls
 verify_type.add_dependency_based_on_internal_calls
-verify_type.check_returns
 verify_type.check_proc_calls
+verify_type.check_returns
+
 
 class_definitions = verify_type.class_definitions
 procs = Archruby::Ruby::TypeInference::Ruby::ProcStorage.instance.proc_definitions

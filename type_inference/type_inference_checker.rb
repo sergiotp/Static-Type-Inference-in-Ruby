@@ -137,15 +137,17 @@ module Archruby
         end
 
         def add_to_method_definitions(receiver_class, dependencies, method_name)
-          method_definitions = @class_definitions[receiver_class].all_methods
-          if method_definitions
-            method_definitions.each do |method_definition|
-              if method_definition.method_name == method_name
-                add_new_params_dependency(method_definition, dependencies)
-                break
+          if(@class_definitions.has_key?(receiver_class))
+            method_definitions = @class_definitions[receiver_class].all_methods
+            if method_definitions
+              method_definitions.each do |method_definition|
+                if method_definition.method_name == method_name
+                  add_new_params_dependency(method_definition, dependencies)
+                  break
+                end
               end
             end
-          end
+          end          
         end
 
         def unused_internal_method_call?(internal_method_call)

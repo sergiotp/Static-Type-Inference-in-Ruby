@@ -127,6 +127,11 @@ module Archruby
             end
           end
           
+          
+          def process_lasgn(exp)
+            process_lvar(exp)  
+          end
+          
           def process_lvar(exp)
             @types = Set.new
             if(@var_types.has_key?(exp[1]))
@@ -146,7 +151,7 @@ module Archruby
 
           def process_lit(exp)
             @types = Set.new
-            @types.add("Integer")
+            @types.add("#{exp[1].class}")
           end
           
           def process_array(exp)
@@ -175,6 +180,11 @@ module Archruby
             update_types(@types, method_called)
           end
 
+          def process_return(exp)
+            _, return_exp = exp
+            process(return_exp) 
+          end
+         
         end
       end
     end
